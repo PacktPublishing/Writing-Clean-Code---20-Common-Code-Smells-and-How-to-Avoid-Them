@@ -2,6 +2,7 @@
 This is the code repository for **Writing Clean Code - 20 Common Code Smells and How to Avoid Them**, published by Packt. It contains all the supporting project files necessary to work through the video course from start to finish. 
 
 # Code smells
+
 Code repository for the 20 code smells discussed in my online course.
 
 ## Pre-requisites
