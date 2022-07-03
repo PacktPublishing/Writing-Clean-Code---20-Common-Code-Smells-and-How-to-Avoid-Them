@@ -1,0 +1,36 @@
+{
+  "name": "code-smells",
+  "version": "1.0.0",
+  "description": "Code repository for the 20 code smells discussed in my online course.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node scripts/run.js",
+    "exec": "ts-node",
+    "format": "prettier --write ./**/*.{js,ts}",
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lauromueller/code-smells.git"
+  },
+  "author": "Lauro Fialho Müller",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lauromueller/code-smells/issues"
+  },
+  "homepage": "https://github.com/lauromueller/code-smells#readme",
+  "dependencies": {
+    "ts-node": "^10.8.2",
+    "typescript": "^4.7.4",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.43",
+    "@types/uuid": "^8.3.4",
+    "husky": "^8.0.1",
+    "prettier": "^2.7.1"
+  },
+  "prettier": {
+    "printWidth": 100
+  }
+}
