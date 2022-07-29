@@ -1,33 +1,38 @@
-import { parseCustomerData, readCustomerProperties, readCustomersFromCsv } from "./utils";
+import { readCustomersFromCsv } from "./utils";
+
+type CustomerRawData = {
+  name: string | undefined;
+  phone: string | undefined;
+  email: string | undefined;
+};
+
+const sendEmail = (customer: CustomerRawData) => {
+  let emailMessage = "Hello " + customer.name + ",\n";
+  emailMessage += "Thank you for subscribing to our newsletter!\n";
+  console.log(emailMessage);
+};
 
 const sendEmails = async () => {
-  const customerLines = await readCustomersFromCsv();
-  const customerProperties = await readCustomerProperties();
-  const customers = parseCustomerData(customerLines, customerProperties);
+  const customers = await readCustomersFromCsv();
 
-  for (const customer of customers) {
-    if (Boolean(customer.email)) {
-      let emailMessage = "Hello " + customer.name + ",\n";
-      emailMessage += "Thank you for subscribing to our newsletter!\n";
+  customers
+    .filter((customer) => Boolean(customer.email))
+    .forEach((customer) => sendEmail(customer as CustomerRawData));
+};
 
-      console.log(emailMessage);
-    }
-  }
+const displayCustomer = (customer: CustomerRawData) => {
+  console.log("---\n");
+  console.log(
+    `Name: ${customer.name}\nEmail: ${customer.email || "None"}\nPhone: ${
+      customer.phone || "None"
+    }\n`
+  );
 };
 
 const displayCustomers = async () => {
-  const customerLines = await readCustomersFromCsv();
-  const customerProperties = await readCustomerProperties();
-  const customers = parseCustomerData(customerLines, customerProperties);
+  const customers = await readCustomersFromCsv();
 
-  for (const customer of customers) {
-    console.log("---\n");
-    console.log(
-      `Name: ${customer.name}\nEmail: ${customer.email || "None"}\nPhone: ${
-        customer.phone || "None"
-      }\n`
-    );
-  }
+  customers.forEach((customer) => displayCustomer(customer as CustomerRawData));
 };
 
 sendEmails();
