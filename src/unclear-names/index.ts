@@ -1,44 +1,44 @@
 type CustomerRawData = {
-  name: string;
-  phone?: string;
+  fullName: string;
+  mobilePhone?: string;
 };
 
 class Customer {
-  private readonly name: string;
-  private readonly phone?: string;
+  private readonly fullName: string;
+  private readonly mobilePhone?: string;
 
-  constructor(rawData: CustomerRawData) {
-    this.name = rawData.name;
-    this.phone = rawData.phone;
+  constructor(customerData: CustomerRawData) {
+    this.fullName = customerData.fullName;
+    this.mobilePhone = customerData.mobilePhone;
   }
 
-  getName(): string {
-    return this.name;
+  getFullName(): string {
+    return this.fullName;
   }
 
-  getPhone(): string | undefined {
-    return this.phone;
+  getMobilePhone(): string | undefined {
+    return this.mobilePhone;
   }
 }
 
 class Cart {
-  private _cust: Customer;
-  private _pIds: string[] = [];
+  private _customer: Customer;
+  private _productIds: string[] = [];
 
-  constructor(c: Customer) {
-    this._cust = c;
+  constructor(cartCustomer: Customer) {
+    this._customer = cartCustomer;
   }
 
-  addProduct(pId: string) {
-    this._pIds = [...this._pIds, pId];
+  addProduct(newProductId: string) {
+    this._productIds = [...this._productIds, newProductId];
   }
 }
 
-const c1 = new Customer({ name: "John", phone: "1234" });
-const c2 = new Cart(c1);
-const c3 = new Customer({ name: "Jane", phone: "2345" });
+const customer = new Customer({ fullName: "John Smith", mobilePhone: "1234" });
+const cartFromJohn = new Cart(customer);
+const jane = new Customer({ fullName: "Jane Smith", mobilePhone: "2345" });
 
-console.log(c1.getName()); // Is this first name? Or last name? Or full name?
-console.log(c3.getPhone()); // Is this the mobile phone? Or business phone?
+console.log(customer.getFullName());
+console.log(jane.getMobilePhone());
 
 export {};
