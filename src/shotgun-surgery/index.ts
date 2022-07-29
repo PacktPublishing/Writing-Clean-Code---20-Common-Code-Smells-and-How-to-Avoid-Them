@@ -1,10 +1,40 @@
 // Example of coupling to internal data structures
 
-type Customer = {
+type CustomerRawData = {
   id: string;
   name: string;
   shipmentAddress: string;
 };
+
+class Customer {
+  private _id: string;
+  private _name: string;
+  private _street: string = "";
+  private _streetNumber: string = "";
+  private _city: string = "";
+
+  constructor(customerData: CustomerRawData) {
+    this._id = customerData.id;
+    this._name = customerData.name;
+    this.setShipmentAddress(customerData.shipmentAddress);
+  }
+
+  setShipmentAddress(newShipmentAddress: string) {
+    // street, num, city
+    const addressComponent = newShipmentAddress.split(", ");
+    this._street = addressComponent[0];
+    this._streetNumber = addressComponent[1];
+    this._city = addressComponent[2];
+  }
+
+  getShipmentAddress() {
+    return `${this._street}, ${this._streetNumber}, ${this._city}`;
+  }
+
+  getName() {
+    return this._name;
+  }
+}
 
 type Product = {
   id: string;
@@ -17,7 +47,7 @@ const printShipmentLabel = (address: string, customerFullName: string) => {
 };
 
 const shipProductToCustomer = (product: Product, customer: Customer) => {
-  const shipmentLabel = printShipmentLabel(customer.shipmentAddress, customer.name);
+  const shipmentLabel = printShipmentLabel(customer.getShipmentAddress(), customer.getName());
 
   console.log(`Initiated shipment to ${shipmentLabel}`);
 };
@@ -27,27 +57,47 @@ const updateCustomerShippingAddress = (customer: Customer, newAddress: string) =
     throw new Error("Invalid address, must be a non-empty string.");
   }
 
-  customer.shipmentAddress = newAddress;
+  customer.setShipmentAddress(newAddress);
 };
 
 // Example of coupling to data format (harder to catch, specially if automated test suit is weak)
 
-type Discount = {
+type DiscountRawData = {
   id: string;
   productId: string;
   discountPct: number;
 };
 
+class Discount {
+  private _id: string;
+  private _productId: string;
+  private _discountPct: number;
+
+  constructor(discountData: DiscountRawData) {
+    this._id = discountData.id;
+    this._productId = discountData.productId;
+    this._discountPct = discountData.discountPct;
+  }
+
+  isApplicableToProduct(product: Product) {
+    return this._productId === product.id;
+  }
+
+  applyToProduct(product: Product) {
+    return this._discountPct * product.price;
+  }
+}
+
 const getProductDiscount = (discounts: Discount[], product: Product) =>
-  discounts.find((disc) => disc.productId === product.id)?.discountPct || 0;
+  discounts.find((disc) => disc.isApplicableToProduct(product));
 
 const calculateSum = (prev: number, curr: number) => prev + curr;
 
-const fromProductToDiscount = (discountTable: Discount[]) => (product: Product) =>
-  getProductDiscount(discountTable, product) * product.price;
+const fromProductToDiscount = (discounts: Discount[], product: Product) =>
+  getProductDiscount(discounts, product)?.applyToProduct(product) || 0;
 
 const calculateTotalDiscount = (products: Product[], discounts: Discount[]) =>
-  products.map(fromProductToDiscount(discounts)).reduce(calculateSum, 0);
+  products.map((product) => fromProductToDiscount(discounts, product)).reduce(calculateSum, 0);
 
 const products: Product[] = [
   {
@@ -67,7 +117,7 @@ const products: Product[] = [
   },
 ];
 
-const discounts: Discount[] = [
+const discounts: DiscountRawData[] = [
   {
     id: "dA",
     productId: "a",
@@ -85,6 +135,11 @@ const discounts: Discount[] = [
   },
 ];
 
-console.log(calculateTotalDiscount(products, discounts));
+console.log(
+  calculateTotalDiscount(
+    products,
+    discounts.map((disc) => new Discount(disc))
+  )
+);
 
 export {};
