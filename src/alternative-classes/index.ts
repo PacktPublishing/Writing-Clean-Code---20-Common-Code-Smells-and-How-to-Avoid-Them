@@ -1,4 +1,8 @@
-class Customer {
+interface Printable {
+  toString(): string;
+}
+
+class Customer implements Printable {
   private _firstName: string;
   private _lastName: string;
 
@@ -7,12 +11,12 @@ class Customer {
     this._lastName = lastName;
   }
 
-  getFullName() {
+  toString(): string {
     return `${this._firstName} ${this._lastName}`;
   }
 }
 
-class Product {
+class Product implements Printable {
   private _title: string;
   private _price: number;
 
@@ -21,17 +25,15 @@ class Product {
     this._price = price;
   }
 
-  getTitle() {
+  toString(): string {
     return this._title;
   }
 }
 
-const logCustomer = (cust: Customer) => {
-  console.log(`[logObject] : ${cust.getFullName()}`);
+const logObject = (obj: Printable) => {
+  console.log(`[logObject] : ${obj.toString()}`);
 };
 
-const logProduct = (prod: Product) => {
-  console.log(`[logObject] : ${prod.getTitle()}`);
-};
-
+logObject(new Product("product", 10));
+logObject(new Customer("first", "last"));
 export {};
