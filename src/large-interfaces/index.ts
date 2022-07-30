@@ -22,16 +22,25 @@ interface Return {
   getReturnedProducts(): Product[];
 }
 
-interface OrderManager {
+interface OrderService {
   createOrder: (customerId: string, products: Product[]) => Order;
   deleteOrder: (orderId: string) => void;
   addProductsToOrder: (orderId: string, products: Product[]) => void;
   removeProductsFromOrder: (orderId: string, products: Product[]) => void;
   getOrderDetails: (orderId: string) => Order;
+}
+
+interface CustomerService {
   registerCustomerAddress: (customerId: string, address: string) => void;
   getCustomerAddress: (customerId: string) => string;
+}
+
+interface ShipmentService {
   setShipmentAddress: (orderId: string, address: string) => void;
   getShipmentAddress: (orderId: string) => string;
+}
+
+interface ReturnService {
   initiateOrderReturn: (orderId: string, returnedProducts: Product[]) => Return;
   cancelReturn: (returnId: string) => void;
   getReturnStatus: (returnId: string) => string;
@@ -39,18 +48,9 @@ interface OrderManager {
 
 // Example regarding exposing too many internal implementation details
 
-type CsvObject = {
-  headers: string[];
-  lines: string[];
-};
-
 interface CsvDataStore {
-  readCsvFromFile: (filePath: string) => CsvObject;
-  readCsvFromLink: (link: string) => CsvObject;
-  parseCsvObject: (csvObject: CsvObject) => Record<string, string>[];
-  convertRecordsToCsvObject: (records: Record<string, string>[]) => CsvObject;
-  saveCsvToFile: (csvObject: CsvObject, filePath: string) => void;
-  saveCsvToLink: (csvObject: CsvObject, link: string) => void;
+  readRecordsFromCsv: (source: string) => Record<string, string>[];
+  saveRecordsToCsv: (records: Record<string, string>[], destination: string) => void;
 }
 
 export {};
