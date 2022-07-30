@@ -2,8 +2,8 @@ import fs from "fs";
 import path from "path";
 import readline from "readline";
 
-const sendEmails = async () => {
-  const fileReader = fs.createReadStream(path.resolve(__dirname + "/utils/customerData.csv"));
+const readCustomersFromCsv = async (relativePath: string) => {
+  const fileReader = fs.createReadStream(path.resolve(__dirname + relativePath));
   const lineReader = readline.createInterface({
     input: fileReader,
     crlfDelay: Infinity,
@@ -29,14 +29,22 @@ const sendEmails = async () => {
     lineNumber++;
   }
 
-  const customersWithEmail = customers.filter((cust) => Boolean(cust.email));
+  return customers;
+};
 
-  for (let i = 0; i < customersWithEmail.length; i++) {
-    let emailMessage = "Hello " + customersWithEmail[i].name + ",\n";
-    emailMessage += "Thank you for subscribing to our newsletter!\n";
+const hasEmail = (customer: Record<string, string | undefined>) => Boolean(customer.email);
 
-    console.log(emailMessage);
-  }
+const sendEmailToCustomer = (customer: Record<string, string | undefined>) => {
+  let emailMessage = "Hello " + customer.name + ",\n";
+  emailMessage += "Thank you for subscribing to our newsletter!\n";
+
+  console.log(emailMessage);
+};
+
+const sendEmails = async () => {
+  const customers = await readCustomersFromCsv("/utils/customerData.csv");
+
+  customers.filter(hasEmail).forEach(sendEmailToCustomer);
 };
 
 sendEmails();
