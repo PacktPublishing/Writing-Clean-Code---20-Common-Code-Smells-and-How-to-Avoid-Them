@@ -14,6 +14,7 @@ type CategoryRawData = {
 interface ArticleService {
   getAllArticles(): Promise<ArticleRawData[]>;
   getArticleById(id: string): Promise<ArticleRawData | null>;
+  getArticlesForCategory(categoryId: string): Promise<ArticleRawData[]>;
   createArticle(article: ArticleRawData): Promise<void>;
 }
 
@@ -49,9 +50,7 @@ class BlogService {
   }
 
   async getArticlesForCategory(categoryId: string) {
-    const allArticles = await this._articleService.getAllArticles();
-
-    return allArticles.filter((article) => article.category.id === categoryId);
+    return this._articleService.getArticlesForCategory(categoryId);
   }
 }
 
