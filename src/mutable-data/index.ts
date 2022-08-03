@@ -1,9 +1,10 @@
-type Customer = {
+type CustomerRawData = {
   name: string;
   email?: string;
+  phones?: string[];
 };
 
-const loadCustomers = (): Customer[] => {
+const loadCustomers = (): CustomerRawData[] => {
   return [
     {
       name: "John",
@@ -23,13 +24,11 @@ const loadCustomers = (): Customer[] => {
   ];
 };
 
-const sanitizeCustomers = (customers: Customer[]) => {
-  customers
-    .filter((customer) => !Boolean(customer.email))
-    .forEach((customer) => (customer.email = "None"));
+const sanitizeCustomers = (customers: CustomerRawData[]): CustomerRawData[] => {
+  return customers.map((customer) => ({ ...customer, email: customer.email || "None" }));
 };
 
-const sendEmails = (customers: Customer[]) => {
+const sendEmails = (customers: CustomerRawData[]) => {
   customers
     .filter((customer) => Boolean(customer.email))
     .forEach((customer) => console.log(`E-mail sent to ${customer.name} : ${customer.email}`));
@@ -38,8 +37,8 @@ const sendEmails = (customers: Customer[]) => {
 const customers = loadCustomers();
 
 // What happens when we uncomment the following line?
-// sanitizeCustomers(customers);
+const sanitizedCustomers = sanitizeCustomers(customers);
 
-sendEmails(customers);
+sendEmails(sanitizedCustomers);
 
 export {};
