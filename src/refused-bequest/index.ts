@@ -16,13 +16,21 @@ class Tank {
   }
 }
 
-class Vehicle {
+interface HasTank {
+  fillTank(liters: number): void;
+}
+
+interface Movable {
+  move(kilometers: number): void;
+}
+
+class VehicleWithTank implements HasTank, Movable {
   private _tank: Tank;
   private _kmsPerLiter: number;
 
-  constructor(tank: Tank, kmsPerLiter?: number) {
-    this._tank = tank;
-    this._kmsPerLiter = kmsPerLiter || 10;
+  constructor(tankCapacity: number, kmsPerLiter: number) {
+    this._tank = new Tank(tankCapacity);
+    this._kmsPerLiter = kmsPerLiter;
   }
 
   fillTank(liters: number) {
@@ -35,17 +43,17 @@ class Vehicle {
   }
 }
 
-class Car extends Vehicle {
-  constructor(tankCapacity: number, kmsPerLiter: number) {
-    super(new Tank(tankCapacity), kmsPerLiter);
+class VehicleWithoutTank implements Movable {
+  constructor() {}
+
+  move(kilometers: number) {
+    console.log("We are eco-friendly!");
   }
 }
 
-class Truck extends Vehicle {
-  constructor(tankCapacity: number, kmsPerLiter: number) {
-    super(new Tank(tankCapacity), kmsPerLiter);
-  }
-}
+const myBike = new VehicleWithoutTank();
+const car = new VehicleWithTank(100, 10);
+const truck = new VehicleWithTank(1000, 15);
 
 // What happens when we want to create a Bicycle?
 
