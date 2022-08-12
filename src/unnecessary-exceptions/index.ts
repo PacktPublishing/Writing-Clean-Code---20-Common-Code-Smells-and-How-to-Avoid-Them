@@ -10,14 +10,10 @@ type Discount = {
   discountPct: number;
 };
 
-const getProductDiscount = (discounts: Discount[], product: Product) => {
+const getProductDiscountPct = (discounts: Discount[], product: Product) => {
   const discount = discounts.find((disc) => disc.productId === product.id);
 
-  if (!discount) {
-    throw new Error("Discount not found!");
-  }
-
-  return discount.discountPct;
+  return discount ? discount.discountPct : 0;
 };
 
 const products: Product[] = [
@@ -56,6 +52,13 @@ const discounts: Discount[] = [
   },
 ];
 
-getProductDiscount(discounts, products[2]);
+const calculateDiscountedPrice = (discounts: Discount[], product: Product) => {
+  const discount = getProductDiscountPct(discounts, product);
+  return product.price * (1 - discount);
+};
+
+console.log(calculateDiscountedPrice(discounts, products[1]));
+console.log(calculateDiscountedPrice(discounts, products[2]));
+console.log("Some super important stuff!!");
 
 export {};
