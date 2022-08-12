@@ -1,12 +1,21 @@
 // Example: unnecessarily complex methods
-const add = (...args: number[]) => {
-  return args.reduce((prev, curr) => prev + curr, 0);
+const add = (a: number, b: number) => a + b;
+const subtract = (a: number, b: number) => a - b;
+
+const buildSerialOperation = (operation: (a: number, b: number) => number) => {
+  console.log("Operation: ", operation);
+  return (...args: number[]) => {
+    return args.reduce(operation);
+  };
 };
 
-console.log(add(1, 2));
-console.log(add(1, 2, 3, 4));
+const serialAdd = buildSerialOperation(add);
+const serialSubtract = buildSerialOperation(subtract);
 
-// Example: unnecessary operations implemented in the calculator
+console.log(serialAdd(1, 2));
+console.log(serialAdd(1, 2, 3, 4));
+
+// Example: unnecessary operations implemented in the calculator class
 class Calculator {
   private _currentValue: number;
 
@@ -32,14 +41,6 @@ class Calculator {
   divideBy(value: number) {
     this._currentValue /= value;
     return this;
-  }
-
-  log10(value: number) {
-    this._currentValue = Math.log10(this._currentValue);
-  }
-
-  power(value: number) {
-    this._currentValue = Math.pow(this._currentValue, value);
   }
 
   printTotal() {
