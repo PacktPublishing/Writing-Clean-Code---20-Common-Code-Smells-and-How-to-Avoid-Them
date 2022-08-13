@@ -12,7 +12,7 @@ enum CustomerStatus {
 interface Customer {
   getStatus(): CustomerStatus;
   hasFundsFor(invoice: Invoice): boolean;
-  deductInvoiceFunds(invoice: Invoice): void;
+  deductInvoiceAmount(invoice: Invoice): void;
 }
 
 interface Invoice {
@@ -22,25 +22,33 @@ interface Invoice {
   setStatus(newStatus: InvoiceStatus): void;
 }
 
-interface InvoiceService {
+interface IInvoiceService {
+  payInvoiceFor(orderId: string): void;
+}
+
+interface IInvoiceRepository {
   getByOrderId(orderId: string): Invoice;
   updateInvoice(invoice: Invoice): void;
 }
 
-class OrderService {
-  private _invoiceService: InvoiceService;
+class InvoiceService implements IInvoiceService {
+  private _invoiceRepository: IInvoiceRepository;
 
-  constructor(invoiceService: InvoiceService) {
-    this._invoiceService = invoiceService;
+  constructor(invoiceRepository: IInvoiceRepository) {
+    this._invoiceRepository = invoiceRepository;
+  }
+
+  private isInvoicePayable(invoice: Invoice): boolean {
+    return (
+      [InvoiceStatus.OPEN, InvoiceStatus.DELAYED].includes(invoice.getStatus()) &&
+      invoice.getCustomer().getStatus() === CustomerStatus.ACTIVE
+    );
   }
 
   payInvoiceFor(orderId: string) {
-    const invoice = this._invoiceService.getByOrderId(orderId);
+    const invoice = this._invoiceRepository.getByOrderId(orderId);
 
-    if (
-      [InvoiceStatus.OPEN, InvoiceStatus.DELAYED].includes(invoice.getStatus()) &&
-      invoice.getCustomer().getStatus() === CustomerStatus.ACTIVE
-    ) {
+    if (this.isInvoicePayable(invoice)) {
       if (invoice.getStatus() === InvoiceStatus.DELAYED) {
         invoice.applyDelayPenalty();
       }
@@ -49,10 +57,10 @@ class OrderService {
         throw new Error("Not enough funds to pay invoice.");
       }
 
-      invoice.getCustomer().deductInvoiceFunds(invoice);
+      invoice.getCustomer().deductInvoiceAmount(invoice);
       invoice.setStatus(InvoiceStatus.PAID);
 
-      this._invoiceService.updateInvoice(invoice);
+      this._invoiceRepository.updateInvoice(invoice);
     } else {
       throw new Error("Invoice is not payable.");
     }
