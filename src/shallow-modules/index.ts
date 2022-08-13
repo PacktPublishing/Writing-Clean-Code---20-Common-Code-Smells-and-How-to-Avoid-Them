@@ -8,15 +8,23 @@ type CsvObject = {
 };
 
 interface ICsvDataStore {
-  openCsvFile: (filePath: string) => readline.Interface;
-  parseCsvFromFile: (fileInterface: readline.Interface) => Promise<CsvObject>;
-  parseCsvObject: (csvObject: CsvObject) => Record<string, string>[];
-  convertRecordsToCsvObject: (records: Record<string, string>[]) => CsvObject;
-  saveCsvObjectToFile: (csvObject: CsvObject, filePath: string) => void;
+  readRecordsFromFile: (filePath: string) => Promise<Record<string, string>[]>;
+  saveRecordsToFile: (records: Record<string, string>[], filePath: string) => void;
 }
 
 class CsvDataStore implements ICsvDataStore {
-  openCsvFile(filePath: string): readline.Interface {
+  async readRecordsFromFile(filePath: string) {
+    const readLineInterface = this.openCsvFile(filePath);
+    const csvObject = await this.parseCsvFromFile(readLineInterface);
+    return this.parseCsvObject(csvObject);
+  }
+
+  saveRecordsToFile(records: Record<string, string>[], filePath: string) {
+    const csvObject = this.convertRecordsToCsvObject(records);
+    return this.saveCsvObjectToFile(csvObject, filePath);
+  }
+
+  private openCsvFile(filePath: string): readline.Interface {
     const fileReader = fs.createReadStream(path.resolve(__dirname + filePath));
     return readline.createInterface({
       input: fileReader,
@@ -24,7 +32,7 @@ class CsvDataStore implements ICsvDataStore {
     });
   }
 
-  async parseCsvFromFile(fileInterface: readline.Interface): Promise<CsvObject> {
+  private async parseCsvFromFile(fileInterface: readline.Interface): Promise<CsvObject> {
     let lineCounter = 0;
     let result: CsvObject = {
       headers: "",
@@ -44,7 +52,7 @@ class CsvDataStore implements ICsvDataStore {
     return result;
   }
 
-  parseCsvObject(csvObject: CsvObject): Record<string, string>[] {
+  private parseCsvObject(csvObject: CsvObject): Record<string, string>[] {
     const objProperties = csvObject.headers.split(",");
     const records = [];
 
@@ -62,7 +70,7 @@ class CsvDataStore implements ICsvDataStore {
     return records;
   }
 
-  convertRecordsToCsvObject(records: Record<string, string>[]): CsvObject {
+  private convertRecordsToCsvObject(records: Record<string, string>[]): CsvObject {
     if (records.length === 0) {
       return {
         headers: "",
@@ -75,7 +83,7 @@ class CsvDataStore implements ICsvDataStore {
     };
   }
 
-  saveCsvObjectToFile(csvObject: CsvObject, filePath: string): void {
+  private saveCsvObjectToFile(csvObject: CsvObject, filePath: string): void {
     const fileWriter = fs.createWriteStream(path.resolve(__dirname + "/" + filePath));
 
     fileWriter.write(csvObject.headers + "\n");
@@ -87,19 +95,20 @@ class CsvDataStore implements ICsvDataStore {
 
 const csvStore = new CsvDataStore();
 
-const csvObj = csvStore.convertRecordsToCsvObject([
-  {
-    name: "John",
-    dateOfBirth: "1990-01-01",
-    email: "john@example.com",
-  },
-  {
-    name: "Jane",
-    dateOfBirth: "1992-01-01",
-    email: "jane@example.com",
-  },
-]);
-
-csvStore.saveCsvObjectToFile(csvObj, "customers.csv");
+csvStore.saveRecordsToFile(
+  [
+    {
+      name: "John",
+      dateOfBirth: "1990-01-01",
+      email: "john@example.com",
+    },
+    {
+      name: "Jane",
+      dateOfBirth: "1992-01-01",
+      email: "jane@example.com",
+    },
+  ],
+  "customers.csv"
+);
 
 export {};
