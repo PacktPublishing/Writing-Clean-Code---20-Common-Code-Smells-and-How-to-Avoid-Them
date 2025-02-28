@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "[pre-commit hooks] : Running typescript-examples pre-commit hooks"
+npm run format
+git add .
